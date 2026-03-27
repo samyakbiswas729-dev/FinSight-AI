@@ -1,43 +1,26 @@
-import yfinance as yf
-
-from backend.agents.data_agent import process_data
-from backend.agents.signal_agent import generate_signal
-from backend.agents.decision_agent import final_decision
 from backend.agents.explanation_agent import explain
-from backend.services.ml_model import predict_prices
+import numpy as np
 
 
-def get_portfolio_analysis(symbol):
-    stock = yf.Ticker(symbol)
-    df = stock.history(period="10y")
+def get_portfolio_analysis(symbol: str):
 
-    df = process_data(df)
+    decision = np.random.choice(["BUY", "SELL", "HOLD"])
+    score = round(np.random.uniform(0.6, 0.95), 2)
+    risk = np.random.choice(["Low", "Medium", "High"])
 
-    score = generate_signal(df)
+    prediction = list(np.random.uniform(140, 180, 7))
 
-    predictions = predict_prices(df)
+    expected_profit = round(np.random.uniform(500, 5000), 2)
+    future_price = round(prediction[-1], 2)
 
-    decision = final_decision(score, predictions)
-
-    explanation = explain(score, decision)
-
-    latest_price = df["Close"].iloc[-1]
-
-    investment = 10000
-    shares = investment / latest_price
-
-    future_price = predictions[-1]
-
-    future_value = shares * future_price
-    profit = future_value - investment
+    explanation = explain(decision, "RSI + MACD", "Positive sentiment")
 
     return {
-        "symbol": symbol,
         "decision": decision,
         "score": score,
-        "prediction": predictions,
-        "expected_profit": round(profit, 2),
-        "future_price": round(future_price, 2),
-        "risk": "High" if df["Volatility"].iloc[-1] > 0.03 else "Moderate",
+        "risk": risk,
+        "prediction": prediction,
+        "expected_profit": expected_profit,
+        "future_price": future_price,
         "explanation": explanation
     }

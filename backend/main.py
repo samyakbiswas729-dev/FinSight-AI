@@ -1,16 +1,27 @@
 from fastapi import FastAPI
 from backend.services.portfolio_service import get_portfolio_analysis
-from backend.services.learning import get_stock_data
+import pandas as pd
+import numpy as np
 
 app = FastAPI()
 
-@app.get("/")
-def home():
-    return {"message": "FinSight AI Running 🚀"}
 
 @app.get("/stock/{symbol}")
-def stock(symbol: str):
-    return get_stock_data(symbol)
+def get_stock(symbol: str):
+    # Dummy stock data (10 years simulated)
+    dates = pd.date_range(end=pd.Timestamp.today(), periods=3000)
+
+    prices = np.cumsum(np.random.randn(3000)) + 150
+    volume = np.random.randint(1000000, 5000000, size=3000)
+
+    data = pd.DataFrame({
+        "Date": dates,
+        "Close": prices,
+        "Volume": volume
+    })
+
+    return {"data": data.to_dict(orient="records")}
+
 
 @app.get("/portfolio/{symbol}")
 def portfolio(symbol: str):
